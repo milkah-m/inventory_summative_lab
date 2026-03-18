@@ -39,11 +39,6 @@ def create_item():
     inventory.append(new_item)
     return jsonify(new_item), 201
 
-# Get the search term from the request body
-# Call fetch_product with that search term (but first — how do you import it?)
-# Handle the case where the product isn't found
-# Add the fetched product to inventory with a new ID, plus price, quantity and expiry_date from the user
-# Return the new item with 201
 @app.route("/inventory/fetch", methods=["POST"])
 def fetch_item():
     data = request.get_json()
@@ -94,9 +89,9 @@ def categorize(category):
 @app.route("/inventory/low-stock", methods=["GET"])
 def check_stock():
     low_stock = [i for i in inventory if i["quantity"] <= 5]
-    return jsonify(low_stock) if low_stock else ("All items are well stocked!", 404)
+    return jsonify(low_stock) if low_stock else jsonify([]), 200
 
 @app.route("/inventory/expiring-soon", methods=["GET"])
 def check_expiry():
     to_expire = [item for item in inventory if (datetime.strptime(item["expiry_date"], "%d.%m.%Y")) <= (datetime.now()+ timedelta(days=30))]
-    return jsonify(to_expire) if to_expire else ("No items expiring soon", 404)
+    return jsonify(to_expire) if to_expire else jsonify([]), 200
