@@ -4,7 +4,7 @@ inventory = [
      "ingredients": "avocado",
      "price": 20,
      "category": "fruit",
-     "quantity": 10,
+     "quantity": 5,
      "brand": "organic-O",
      "expiry_date": "30.03.2026"
     },
@@ -13,7 +13,7 @@ inventory = [
      "ingredients": "rice",
      "price": 100,
      "category": "grains",
-     "quantity": 20,
+     "quantity": 10,
      "brand": "Nice Rice Millers",
      "expiry_date": "30.03.2027"
     },
@@ -22,7 +22,7 @@ inventory = [
      "ingredients": "chicken",
      "price": 250,
      "category": "meat",
-     "quantity": 0.25,
+     "quantity": 15,
      "brand": "Kentucky Lies",
      "expiry_date": "20.03.2026"
     }

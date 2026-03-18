@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from app import app
 from app.data import inventory
+from datetime import datetime, timedelta
 
 # The decorator
 # The function
@@ -14,15 +15,7 @@ def homepage():
 def inventory_list():
     return jsonify(inventory)
 
-# How do you find one specific item from a list of dictionaries?
-# What happens if the ID doesn't exist? 🤔
 
-# @app.route("/events/<int:id>", methods=["GET"])
-# def specific_event(id):
-#     event = next(e.to_dict() for e in events if e.id == id)
-#     if not event:
-#         return "Event not found, please try a different id.", 404
-#     return jsonify(event), 200 
 @app.route("/inventory/<int:id>", methods=["GET"])
 def get_item(id):
     item = next((i for i in inventory if i["id"] == id), None) 
@@ -64,4 +57,18 @@ def delete_item(id):
     inventory = [i for i in inventory if i["id"] != id]
     return "Item deleted successfully", 200
 
+@app.route("/inventory/category/<string:category>", methods=["GET"])
+def categorize(category):
+    item = [i for i in inventory if i["category"] == category]
+    return jsonify(item) if item else ("Item not found!", 404)
 
+
+@app.route("/inventory/low-stock", methods=["GET"])
+def check_stock():
+    low_stock = [i for i in inventory if i["quantity"] <= 5]
+    return jsonify(low_stock) if low_stock else ("All items are well stocked!", 404)
+
+@app.route("/inventory/expiring-soon", methods=["GET"])
+def check_expiry():
+    to_expire = [item for item in inventory if (datetime.strptime(item["expiry_date"], "%d.%m.%Y")) <= (datetime.now()+ timedelta(days=30))]
+    return jsonify(to_expire) if to_expire else ("No items expiring soon", 404)
