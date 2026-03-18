@@ -2,6 +2,7 @@ from flask import jsonify, request
 from app import app
 from app.data import inventory
 from datetime import datetime, timedelta
+from app.external_api import fetch_product
 
 # The decorator
 # The function
@@ -35,6 +36,33 @@ def create_item():
      "brand": data["brand"],
      "expiry_date": data["expiry_date"]
      }
+    inventory.append(new_item)
+    return jsonify(new_item), 201
+
+# Get the search term from the request body
+# Call fetch_product with that search term (but first — how do you import it?)
+# Handle the case where the product isn't found
+# Add the fetched product to inventory with a new ID, plus price, quantity and expiry_date from the user
+# Return the new item with 201
+@app.route("/inventory/fetch", methods=["POST"])
+def fetch_item():
+    data = request.get_json()
+    item_name = data["product_name"]
+    item = fetch_product(item_name)
+    if isinstance(item, str):
+        return item, 404
+    new_id = max((i["id"] for i in inventory), default=0) + 1
+    new_item = {
+     "id": new_id, 
+     "product_name": item.get("product_name", "N/A"),
+     "ingredients": item.get("ingredients_text", "N/A"),
+     "price": data["price"],
+     "category": item.get("categories", "N/A"),
+     "quantity": data["quantity"],
+     "brand": item.get("brands", "N/A"),
+     "expiry_date": data["expiry_date"]
+     }
+
     inventory.append(new_item)
     return jsonify(new_item), 201
 
