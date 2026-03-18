@@ -1,5 +1,6 @@
 import pytest
 from app import app
+from unittest.mock import patch, MagicMock
 
 @pytest.fixture
 def client():
@@ -27,13 +28,23 @@ def test_create_item(client):
     assert response.get_json()["product_name"] == "mint chocolate"
 
 def test_fetch_item(client):
-    response = client.post("/inventory/fetch", json={
-    "product_name": "Oreo",
-    "price": 82,
-    "quantity": 27,
-    "expiry_date": "29.10.2026"})
-    assert response.status_code == 201
-    assert response.get_json()["expiry_date"] == "29.10.2026"
+    mock_product = {
+        "product_name": "Oreo",
+        "brands": "Nabisco",
+        "ingredients_text": "sugar, flour, cocoa",
+        "categories": "Biscuits"
+    }
+    with patch("app.external_api.requests.get") as mock_get:
+        mock_get.return_value = MagicMock()
+        mock_get.return_value.json.return_value = {"products": [mock_product]}
+        response = client.post("/inventory/fetch", json={
+            "product_name": "Oreo",
+            "price": 82,
+            "quantity": 27,
+            "expiry_date": "29.10.2026"
+        })
+        assert response.status_code == 201
+        assert response.get_json()["expiry_date"] == "29.10.2026"
 
 def test_update_item(client):
     response = client.patch("/inventory/1", json={"price": 999})
