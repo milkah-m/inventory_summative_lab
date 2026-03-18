@@ -28,17 +28,6 @@ def get_item(id):
     item = next((i for i in inventory if i["id"] == id), None) 
     return jsonify(item) if item else ("Item not found!", 404)
 
-# @app.route("/events", methods=["POST"])
-# def create_event():
-#     data = request.get_json()
-#     highest_id = max((e.id for e in events), default=0) + 1
-#     new_event = Event(id=highest_id, title=data["title"])
-#     events.append(new_event)
-#     return jsonify(new_event.to_dict()), 201
-
-# How do you get the data the user is sending?
-# How do you generate a new unique ID?
-# How do you add the new item to your inventory list? 
 @app.route("/inventory", methods=["POST"])
 def create_item():
     data = request.get_json()
@@ -55,5 +44,24 @@ def create_item():
      }
     inventory.append(new_item)
     return jsonify(new_item), 201
+
+@app.route("/inventory/<int:id>", methods=["PATCH"])
+def update_item(id):
+    data = request.get_json()
+    item = next((i for i in inventory if i["id"] == id), None)
+    if not item:
+        return "Item not found!", 404
+    for key in data:
+     item[key] = data[key]
+    return jsonify(item)
+
+@app.route("/inventory/<int:id>", methods=["DELETE"])
+def delete_item(id):
+    global inventory
+    item = next((i for i in inventory if i["id"] == id), None)
+    if not item:
+        return "Item not found!", 404
+    inventory = [i for i in inventory if i["id"] != id]
+    return "Item deleted successfully", 200
 
 
