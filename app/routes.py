@@ -22,6 +22,8 @@ def get_item(id):
     item = next((i for i in inventory if i["id"] == id), None) 
     return jsonify(item) if item else ("Item not found!", 404)
 
+
+
 @app.route("/inventory", methods=["POST"])
 def create_item():
     data = request.get_json()
@@ -95,3 +97,7 @@ def check_stock():
 def check_expiry():
     to_expire = [item for item in inventory if (datetime.strptime(item["expiry_date"], "%d.%m.%Y")) <= (datetime.now()+ timedelta(days=30))]
     return jsonify(to_expire) if to_expire else jsonify([]), 200
+
+#what eaxctly are these two doing and which one is right?
+#why am i getting a value error for this? like why is it jumpint to value error?
+#and what is the correct way to write the relevant post request?
