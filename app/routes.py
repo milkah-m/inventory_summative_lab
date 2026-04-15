@@ -3,10 +3,14 @@ from app import app
 from app.data import inventory
 from datetime import datetime, timedelta
 from app.external_api import fetch_product
+from validators import validate_expiry_date, validate_id, validate_price, validate_quantity
 
 # The decorator
 # The function
-# What to return 
+# What to return
+
+def get_item_by_id(item_id):
+    return next((item for item in inventory if item["id"] == item_id), None) 
 
 @app.route("/")
 def homepage():
@@ -19,7 +23,7 @@ def inventory_list():
 
 @app.route("/inventory/<int:id>", methods=["GET"])
 def get_item(id):
-    item = next((i for i in inventory if i["id"] == id), None) 
+    item = get_item_by_id(id)
     return jsonify(item) if item else ("Item not found!", 404)
 
 
@@ -63,15 +67,53 @@ def fetch_item():
     inventory.append(new_item)
     return jsonify(new_item), 201
 
-@app.route("/inventory/<int:id>", methods=["PATCH"])
-def update_item(id):
-    data = request.get_json()
-    item = next((i for i in inventory if i["id"] == id), None)
+
+@app.route("/inventory/<int:item_id>", methods=["PATCH"])
+def update_item(item_id):
+
+    item = get_item_by_id(item_id)
+
     if not item:
-        return "Item not found!", 404
-    for key in data:
-     item[key] = data[key]
-    return jsonify(item)
+        return jsonify({"error": "Item not found"}), 404
+
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    allowed_fields = [
+        "product_name",
+        "ingredients",
+        "brand",
+        "category",
+        "price",
+        "quantity",
+        "expiry_date"
+    ]
+
+    validators = {
+        "price": validate_price,
+        "quantity": validate_quantity,
+        "expiry_date": validate_expiry_date
+    }
+
+    for field, value in data.items():
+
+        if field not in allowed_fields:
+            return jsonify({"error": f"Invalid field: {field}"}), 400
+
+        if field in validators:
+            value = validators[field](value)
+        if value is None:
+            return jsonify({"error": f"Invalid value for {field}"}), 400
+
+    item[field] = value
+
+    return jsonify({
+        "message": "Item updated successfully",
+        "item": item
+    }), 200
+
 
 @app.route("/inventory/<int:id>", methods=["DELETE"])
 def delete_item(id):
