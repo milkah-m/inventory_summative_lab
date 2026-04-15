@@ -156,7 +156,12 @@ while True:
             }
 
             response = safe_request("POST", f"{BASE_URL}/inventory", json=data)
-            print(response)
+            
+            if isinstance(response, dict) and "error" in response:
+                print(f" Failed: {response['error']}")
+            else:
+                 print("Product added successfully")
+
 
         
         # update
