@@ -126,6 +126,7 @@ while True:
             if isinstance(response, dict) and "error" in response:
                 print(f" Failed: {response['error']}")
             else:
+                 print(response)
                  print("Product added successfully")
 
         
@@ -163,6 +164,7 @@ while True:
             if isinstance(response, dict) and "error" in response:
                 print(f" Failed: {response['error']}")
             else:
+                 print(response)
                  print("Product added successfully")
 
 
